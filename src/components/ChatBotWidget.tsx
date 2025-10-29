@@ -2,12 +2,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useJapaneseChat } from "@/hooks/useJapaneseChat";
 
 const ChatBotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [inputMessage, setInputMessage] = useState("");
+  const { messages, isLoading, sendMessage } = useJapaneseChat();
+
+  const handleSend = async () => {
+    if (!inputMessage.trim() || isLoading) return;
+    await sendMessage(inputMessage);
+    setInputMessage("");
+  };
 
   return (
     <>
@@ -31,12 +39,24 @@ const ChatBotWidget = () => {
 
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              <div className="bg-accent p-3 rounded-lg max-w-[80%]">
-                <p className="text-sm">
-                  こんにちは！Xin chào! Tôi là AI Sensei. Tôi sẽ giúp bạn học tiếng Nhật. 
-                  Bạn muốn luyện tập kỹ năng nào hôm nay?
-                </p>
-              </div>
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-lg max-w-[85%] ${
+                    msg.role === "assistant"
+                      ? "bg-accent text-accent-foreground"
+                      : "bg-primary text-primary-foreground ml-auto"
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">AI Sensei đang suy nghĩ...</span>
+                </div>
+              )}
             </div>
           </ScrollArea>
 
@@ -44,17 +64,15 @@ const ChatBotWidget = () => {
             <div className="flex gap-2">
               <Input
                 placeholder="Nhập tin nhắn..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && setMessage("")}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                disabled={isLoading}
               />
-              <Button size="icon" variant="hero">
+              <Button size="icon" variant="hero" onClick={handleSend} disabled={isLoading}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Chatbot AI sẽ được kích hoạt sau khi kết nối Lovable Cloud
-            </p>
           </div>
         </Card>
       )}
