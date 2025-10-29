@@ -13,6 +13,7 @@ const Index = () => {
       titleJp: "聴解",
       description: "Rèn luyện khả năng nghe hiểu tiếng Nhật qua các bài tập thực tế và phim ảnh",
       delay: 0,
+      link: "/listening",
     },
     {
       icon: Mic,
@@ -20,6 +21,7 @@ const Index = () => {
       titleJp: "会話",
       description: "Luyện phát âm chuẩn với AI và thực hành hội thoại hàng ngày",
       delay: 100,
+      link: "/speaking",
     },
     {
       icon: BookText,
@@ -27,6 +29,7 @@ const Index = () => {
       titleJp: "読解",
       description: "Nâng cao khả năng đọc hiểu từ Hiragana đến Kanji phức tạp",
       delay: 200,
+      link: "/reading",
     },
     {
       icon: PenTool,
@@ -34,6 +37,7 @@ const Index = () => {
       titleJp: "作文",
       description: "Học cách viết từ cơ bản đến nâng cao với sự trợ giúp của AI",
       delay: 300,
+      link: "/writing",
     },
   ];
 

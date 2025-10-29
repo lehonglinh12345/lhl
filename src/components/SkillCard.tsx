@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SkillCardProps {
   icon: LucideIcon;
@@ -8,9 +9,12 @@ interface SkillCardProps {
   titleJp: string;
   description: string;
   delay?: number;
+  link: string;
 }
 
-const SkillCard = ({ icon: Icon, title, titleJp, description, delay = 0 }: SkillCardProps) => {
+const SkillCard = ({ icon: Icon, title, titleJp, description, delay = 0, link }: SkillCardProps) => {
+  const navigate = useNavigate();
+
   return (
     <Card 
       className="group hover:shadow-xl transition-all duration-300 border-border hover:border-primary/50 hover:-translate-y-2 animate-slide-up"
@@ -26,7 +30,11 @@ const SkillCard = ({ icon: Icon, title, titleJp, description, delay = 0 }: Skill
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button variant="outline" className="w-full group-hover:border-primary group-hover:text-primary">
+        <Button 
+          variant="outline" 
+          className="w-full group-hover:border-primary group-hover:text-primary"
+          onClick={() => navigate(link)}
+        >
           Bắt Đầu Học
         </Button>
       </CardContent>
