@@ -48,10 +48,12 @@ export const useJapaneseChat = () => {
       let textBuffer = "";
       let streamDone = false;
       let assistantContent = "";
+      let isFirstChunk = true;
 
       while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
+        
         textBuffer += decoder.decode(value, { stream: true });
 
         let newlineIndex: number;
@@ -71,48 +73,29 @@ export const useJapaneseChat = () => {
 
           try {
             const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantContent += content;
+            const deltaContent = parsed.choices?.[0]?.delta?.content as string | undefined;
+            
+            if (deltaContent) {
+              assistantContent += deltaContent;
+              
               setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last?.role === "assistant" && !streamDone) {
-                  return prev.map((m, i) =>
-                    i === prev.length - 1 ? { ...m, content: assistantContent } : m
-                  );
+                if (isFirstChunk) {
+                  isFirstChunk = false;
+                  return [...prev, { role: "assistant", content: assistantContent }];
                 }
-                return [...prev, { role: "assistant", content: assistantContent }];
+                
+                return prev.map((m, i) =>
+                  i === prev.length - 1 && m.role === "assistant"
+                    ? { ...m, content: assistantContent }
+                    : m
+                );
               });
             }
           } catch {
+            // Incomplete JSON, put line back
             textBuffer = line + "\n" + textBuffer;
             break;
           }
-        }
-      }
-
-      // Final flush
-      if (textBuffer.trim()) {
-        for (let raw of textBuffer.split("\n")) {
-          if (!raw || raw.startsWith(":") || !raw.startsWith("data: ")) continue;
-          const jsonStr = raw.slice(6).trim();
-          if (jsonStr === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantContent += content;
-              setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last?.role === "assistant") {
-                  return prev.map((m, i) =>
-                    i === prev.length - 1 ? { ...m, content: assistantContent } : m
-                  );
-                }
-                return [...prev, { role: "assistant", content: assistantContent }];
-              });
-            }
-          } catch {}
         }
       }
     } catch (e) {
