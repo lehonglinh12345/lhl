@@ -1,13 +1,16 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import ChatBotWidget from "@/components/ChatBotWidget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Pause, RotateCcw, Volume2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 const Listening = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { toast } = useToast();
 
   const lessons = [
     {
@@ -118,6 +121,8 @@ const Listening = () => {
           </div>
         </div>
       </main>
+
+      <ChatBotWidget />
     </div>
   );
 };

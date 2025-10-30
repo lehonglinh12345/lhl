@@ -1,13 +1,31 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import ChatBotWidget from "@/components/ChatBotWidget";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { PenTool, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const Writing = () => {
   const [essay, setEssay] = useState("");
+  const { toast } = useToast();
+
+  const handleSubmit = () => {
+    if (essay.length < 50) {
+      toast({
+        title: "Bài viết quá ngắn",
+        description: "Vui lòng viết ít nhất 50 ký tự",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Đã gửi bài",
+      description: "AI đang chấm bài của bạn...",
+    });
+  };
 
   const exercises = [
     {
@@ -85,7 +103,7 @@ const Writing = () => {
                   <span className="text-sm text-muted-foreground">
                     {essay.length} ký tự
                   </span>
-                  <Button variant="hero">
+                  <Button variant="hero" onClick={handleSubmit}>
                     <Check className="w-4 h-4 mr-2" />
                     Chấm bài với AI
                   </Button>
@@ -156,6 +174,8 @@ const Writing = () => {
           </div>
         </div>
       </main>
+
+      <ChatBotWidget />
     </div>
   );
 };

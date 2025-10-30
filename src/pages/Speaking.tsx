@@ -1,12 +1,30 @@
 import Navbar from "@/components/Navbar";
+import ChatBotWidget from "@/components/ChatBotWidget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const Speaking = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const { toast } = useToast();
+
+  const handleRecording = () => {
+    setIsRecording(!isRecording);
+    if (!isRecording) {
+      toast({
+        title: "Đang ghi âm",
+        description: "Hãy nói một câu tiếng Nhật",
+      });
+    } else {
+      toast({
+        title: "Đã dừng ghi âm",
+        description: "AI đang phân tích phát âm của bạn...",
+      });
+    }
+  };
 
   const phrases = [
     {
@@ -68,7 +86,7 @@ const Speaking = () => {
                   variant={isRecording ? "destructive" : "hero"}
                   size="lg"
                   className="w-24 h-24 rounded-full"
-                  onClick={() => setIsRecording(!isRecording)}
+                  onClick={handleRecording}
                 >
                   {isRecording ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
                 </Button>
@@ -136,6 +154,8 @@ const Speaking = () => {
           </div>
         </div>
       </main>
+
+      <ChatBotWidget />
     </div>
   );
 };

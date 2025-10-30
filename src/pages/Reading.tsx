@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import ChatBotWidget from "@/components/ChatBotWidget";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
@@ -134,6 +135,8 @@ const Reading = () => {
           </div>
         </div>
       </main>
+
+      <ChatBotWidget />
     </div>
   );
 };
