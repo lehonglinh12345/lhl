@@ -39,10 +39,16 @@ const ChatBotWidget = () => {
 
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center text-muted-foreground py-8">
+                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Gửi tin nhắn để bắt đầu trò chuyện với AI Sensei!</p>
+                </div>
+              )}
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-lg max-w-[85%] ${
+                  className={`p-3 rounded-lg max-w-[85%] animate-fade-in ${
                     msg.role === "assistant"
                       ? "bg-accent text-accent-foreground"
                       : "bg-primary text-primary-foreground ml-auto"

@@ -20,16 +20,27 @@ export const useJapaneseChat = () => {
     setIsLoading(true);
 
     try {
-      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/japanese-chat`;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error("Cấu hình Supabase không đúng");
+      }
+
+      const CHAT_URL = `${supabaseUrl}/functions/v1/japanese-chat`;
+      
+      console.log("Sending message to:", CHAT_URL);
       
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${supabaseKey}`,
         },
         body: JSON.stringify({ messages: [...messages, userMsg] }),
       });
+
+      console.log("Response status:", resp.status);
 
       if (!resp.ok) {
         if (resp.status === 429 || resp.status === 402) {
@@ -99,8 +110,12 @@ export const useJapaneseChat = () => {
         }
       }
     } catch (e) {
-      console.error(e);
-      toast.error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+      console.error("Chat error:", e);
+      const errorMessage = e instanceof Error ? e.message : "Đã có lỗi xảy ra";
+      toast.error(`Lỗi: ${errorMessage}. Vui lòng thử lại!`);
+      
+      // Remove the failed user message
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
     }
