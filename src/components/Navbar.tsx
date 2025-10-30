@@ -1,10 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageCircle, Home } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { BookOpen, Home, Users, LogIn, LogOut, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut } = useAuth();
   const isHome = location.pathname === "/";
 
   return (
@@ -33,7 +44,7 @@ const Navbar = () => {
             </Button>
           )}
           
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -66,7 +77,53 @@ const Navbar = () => {
             >
               Viết
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/community")}
+              className={location.pathname === "/community" ? "text-primary" : ""}
+            >
+              <Users className="w-4 h-4 mr-1" />
+              Cộng đồng
+            </Button>
           </div>
+          
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src="" />
+                    <AvatarFallback className="text-xs">
+                      {user.email?.[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline">{user.email?.split('@')[0]}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/community")}>
+                  <User className="w-4 h-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Đăng xuất
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={() => navigate("/auth")}
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Đăng nhập
+            </Button>
+          )}
         </div>
       </div>
     </nav>
