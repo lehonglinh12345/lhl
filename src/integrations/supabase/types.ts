@@ -21,6 +21,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          image_url: string | null
           likes_count: number
           title: string
           updated_at: string
@@ -32,6 +33,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          image_url?: string | null
           likes_count?: number
           title: string
           updated_at?: string
@@ -43,6 +45,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           likes_count?: number
           title?: string
           updated_at?: string
@@ -160,6 +163,36 @@ export type Database = {
           id?: string
           japanese_level?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      roadmap_steps: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          level: string
+          resources: Json | null
+          step_number: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          level: string
+          resources?: Json | null
+          step_number: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          level?: string
+          resources?: Json | null
+          step_number?: number
+          title?: string
         }
         Relationships: []
       }

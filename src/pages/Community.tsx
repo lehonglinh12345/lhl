@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import ChatBotWidget from '@/components/ChatBotWidget';
@@ -8,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageSquare, PenSquare, Loader2 } from 'lucide-react';
+import { Heart, MessageSquare, PenSquare, Loader2, Image as ImageIcon, Send, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Post {
   id: string;
@@ -24,12 +25,24 @@ interface Post {
   comments_count: number;
   created_at: string;
   user_id: string;
+  image_url: string | null;
   profiles: {
     display_name: string;
     avatar_url: string | null;
     japanese_level: string;
   };
   user_liked?: boolean;
+}
+
+interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  profiles: {
+    display_name: string;
+    avatar_url: string | null;
+  };
 }
 
 const Community = () => {
@@ -44,6 +57,15 @@ const Community = () => {
   const [newContent, setNewContent] = useState('');
   const [newCategory, setNewCategory] = useState('other');
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Comments
+  const [openComments, setOpenComments] = useState<Set<string>>(new Set());
+  const [comments, setComments] = useState<Record<string, Comment[]>>({});
+  const [newComment, setNewComment] = useState<Record<string, string>>({});
+  const [loadingComments, setLoadingComments] = useState<Record<string, boolean>>({});
 
   const categoryLabels: Record<string, string> = {
     listening: '🎧 Nghe',
@@ -98,6 +120,22 @@ const Community = () => {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Ảnh phải nhỏ hơn 5MB');
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -113,6 +151,25 @@ const Community = () => {
 
     setSubmitting(true);
     try {
+      let imageUrl = null;
+
+      // Upload image if exists
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('post-images')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('post-images')
+          .getPublicUrl(fileName);
+        
+        imageUrl = publicUrl;
+      }
+
       const { error } = await supabase
         .from('community_posts')
         .insert({
@@ -120,6 +177,7 @@ const Community = () => {
           title: newTitle,
           content: newContent,
           category: newCategory,
+          image_url: imageUrl,
         });
 
       if (error) throw error;
@@ -128,6 +186,8 @@ const Community = () => {
       setNewTitle('');
       setNewContent('');
       setNewCategory('other');
+      setImageFile(null);
+      setImagePreview(null);
       setShowNewPost(false);
       fetchPosts();
     } catch (error: any) {
@@ -166,6 +226,73 @@ const Community = () => {
       }
 
       fetchPosts();
+    } catch (error: any) {
+      toast.error('Lỗi: ' + error.message);
+    }
+  };
+
+  const fetchComments = async (postId: string) => {
+    setLoadingComments(prev => ({ ...prev, [postId]: true }));
+    try {
+      const { data, error } = await supabase
+        .from('post_comments')
+        .select(`
+          *,
+          profiles (display_name, avatar_url)
+        `)
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      setComments(prev => ({ ...prev, [postId]: data || [] }));
+    } catch (error: any) {
+      toast.error('Không thể tải bình luận: ' + error.message);
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  const toggleComments = async (postId: string) => {
+    const newOpenComments = new Set(openComments);
+    if (openComments.has(postId)) {
+      newOpenComments.delete(postId);
+    } else {
+      newOpenComments.add(postId);
+      if (!comments[postId]) {
+        await fetchComments(postId);
+      }
+    }
+    setOpenComments(newOpenComments);
+  };
+
+  const handleAddComment = async (postId: string) => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    const content = newComment[postId]?.trim();
+    if (!content) {
+      toast.error('Vui lòng nhập nội dung bình luận');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('post_comments')
+        .insert({
+          post_id: postId,
+          user_id: user.id,
+          content,
+        });
+
+      if (error) throw error;
+
+      setNewComment(prev => ({ ...prev, [postId]: '' }));
+      await fetchComments(postId);
+      await fetchPosts(); // Refresh to update comment count
+      toast.success('Đã thêm bình luận!');
     } catch (error: any) {
       toast.error('Lỗi: ' + error.message);
     }
@@ -248,6 +375,49 @@ const Community = () => {
                         disabled={submitting}
                       />
                     </div>
+
+                    {/* Image Upload */}
+                    <div className="space-y-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                      {imagePreview ? (
+                        <div className="relative">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="w-full h-48 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2"
+                            onClick={() => {
+                              setImageFile(null);
+                              setImagePreview(null);
+                            }}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={submitting}
+                        >
+                          <ImageIcon className="w-4 h-4 mr-2" />
+                          Thêm ảnh
+                        </Button>
+                      )}
+                    </div>
                     
                     <Button type="submit" className="w-full" disabled={submitting}>
                       {submitting ? (
@@ -319,7 +489,15 @@ const Community = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center gap-4">
+                      {post.image_url && (
+                        <img
+                          src={post.image_url}
+                          alt={post.title}
+                          className="w-full h-auto rounded-lg mb-4"
+                        />
+                      )}
+                      
+                      <div className="flex items-center gap-4 mb-4">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -333,11 +511,82 @@ const Community = () => {
                           />
                           {post.likes_count}
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => toggleComments(post.id)}
+                        >
                           <MessageSquare className="w-4 h-4 mr-1" />
                           {post.comments_count}
                         </Button>
                       </div>
+
+                      {/* Comments Section */}
+                      <Collapsible open={openComments.has(post.id)}>
+                        <CollapsibleContent>
+                          <div className="border-t pt-4 space-y-4">
+                            {loadingComments[post.id] ? (
+                              <div className="text-center py-4">
+                                <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+                              </div>
+                            ) : (
+                              <>
+                                {comments[post.id]?.map((comment) => (
+                                  <div key={comment.id} className="flex gap-3">
+                                    <Avatar className="w-8 h-8">
+                                      <AvatarImage src={comment.profiles.avatar_url || undefined} />
+                                      <AvatarFallback>
+                                        {comment.profiles.display_name[0].toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1">
+                                      <div className="bg-muted rounded-lg p-3">
+                                        <p className="font-semibold text-sm">
+                                          {comment.profiles.display_name}
+                                        </p>
+                                        <p className="text-sm">{comment.content}</p>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-1 ml-3">
+                                        {formatDistanceToNow(new Date(comment.created_at), {
+                                          addSuffix: true,
+                                          locale: vi,
+                                        })}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+
+                                {user && (
+                                  <div className="flex gap-2 mt-4">
+                                    <Input
+                                      placeholder="Viết bình luận..."
+                                      value={newComment[post.id] || ''}
+                                      onChange={(e) =>
+                                        setNewComment((prev) => ({
+                                          ...prev,
+                                          [post.id]: e.target.value,
+                                        }))
+                                      }
+                                      onKeyPress={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                          e.preventDefault();
+                                          handleAddComment(post.id);
+                                        }
+                                      }}
+                                    />
+                                    <Button
+                                      size="icon"
+                                      onClick={() => handleAddComment(post.id)}
+                                    >
+                                      <Send className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
                     </CardContent>
                   </Card>
                 ))}

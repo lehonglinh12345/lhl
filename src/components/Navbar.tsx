@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Home, Users, LogIn, LogOut, User } from "lucide-react";
+import { BookOpen, Home, Users, LogIn, LogOut, User, Map } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -85,6 +85,15 @@ const Navbar = () => {
             >
               <Users className="w-4 h-4 mr-1" />
               Cộng đồng
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/roadmap")}
+              className={location.pathname === "/roadmap" ? "text-primary" : ""}
+            >
+              <Map className="w-4 h-4 mr-1" />
+              Lộ trình
             </Button>
           </div>
           
