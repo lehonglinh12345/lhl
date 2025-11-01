@@ -61,6 +61,51 @@ export type Database = {
           },
         ]
       }
+      lessons: {
+        Row: {
+          content: Json
+          created_at: string
+          description: string
+          estimated_hours: number | null
+          exercises: Json | null
+          grammar_points: Json | null
+          id: string
+          lesson_number: number
+          level: string
+          title: string
+          updated_at: string
+          vocabulary: Json | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          description: string
+          estimated_hours?: number | null
+          exercises?: Json | null
+          grammar_points?: Json | null
+          id?: string
+          lesson_number: number
+          level: string
+          title: string
+          updated_at?: string
+          vocabulary?: Json | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          description?: string
+          estimated_hours?: number | null
+          exercises?: Json | null
+          grammar_points?: Json | null
+          id?: string
+          lesson_number?: number
+          level?: string
+          title?: string
+          updated_at?: string
+          vocabulary?: Json | null
+        }
+        Relationships: []
+      }
       post_comments: {
         Row: {
           content: string

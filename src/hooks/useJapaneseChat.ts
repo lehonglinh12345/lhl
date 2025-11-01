@@ -7,7 +7,7 @@ export const useJapaneseChat = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "こんにちは！Xin chào! Tôi là AI Sensei. Tôi sẽ giúp bạn học tiếng Nhật. Bạn muốn luyện tập kỹ năng nào hôm nay? 📚",
+      content: "こんにちは！👋\n\nXin chào! Tôi là AI Sensei, giáo viên tiếng Nhật thông minh của bạn.\n\n✨ Tôi có thể giúp bạn:\n• Giải thích ngữ pháp chi tiết (N5→N1)\n• Phân tích từ vựng và cách dùng\n• Sửa lỗi và cải thiện câu văn\n• Chia sẻ kiến thức văn hóa Nhật Bản\n• Gợi ý phương pháp học hiệu quả\n\nBạn muốn học điều gì hôm nay? 📚",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);

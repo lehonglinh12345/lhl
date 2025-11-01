@@ -31,30 +31,60 @@ const ChatBotWidget = () => {
 
       {/* Chat window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 w-96 h-[500px] shadow-2xl z-40 flex flex-col animate-scale-in">
-          <div className="bg-primary text-primary-foreground p-4 rounded-t-lg">
-            <h3 className="font-semibold">AI Sensei 🎌</h3>
-            <p className="text-xs opacity-90">Trợ lý học tiếng Nhật của bạn</p>
+        <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-2xl z-40 flex flex-col animate-scale-in border-2 border-primary/20">
+          <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground p-5 rounded-t-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+            <div className="relative">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                AI Sensei <span className="text-2xl">🎌</span>
+              </h3>
+              <p className="text-xs opacity-90 mt-1">Thầy giáo AI thông minh của bạn</p>
+            </div>
           </div>
 
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Gửi tin nhắn để bắt đầu trò chuyện với AI Sensei!</p>
+                <div className="text-center text-muted-foreground py-8 px-4">
+                  <div className="bg-accent/50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <MessageCircle className="w-10 h-10 text-accent-foreground/70" />
+                  </div>
+                  <p className="text-sm font-medium mb-2">Chào mừng đến với AI Sensei! 👋</p>
+                  <p className="text-xs opacity-75">Hãy bắt đầu cuộc trò chuyện bằng cách hỏi về bất kỳ điều gì liên quan đến tiếng Nhật!</p>
+                  <div className="mt-4 space-y-2 text-xs">
+                    <div className="bg-primary/10 rounded-lg p-2 text-left">
+                      <p className="font-medium text-primary">💡 Gợi ý:</p>
+                      <p className="opacity-75">"Giải thích ngữ pháp は và が"</p>
+                    </div>
+                    <div className="bg-primary/10 rounded-lg p-2 text-left">
+                      <p className="opacity-75">"Từ vựng về gia đình trong tiếng Nhật"</p>
+                    </div>
+                  </div>
                 </div>
               )}
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-lg max-w-[85%] animate-fade-in ${
-                    msg.role === "assistant"
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-primary text-primary-foreground ml-auto"
+                  className={`flex gap-2 animate-fade-in ${
+                    msg.role === "assistant" ? "" : "flex-row-reverse"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs ${
+                    msg.role === "assistant" 
+                      ? "bg-primary text-primary-foreground" 
+                      : "bg-secondary text-secondary-foreground"
+                  }`}>
+                    {msg.role === "assistant" ? "先" : "学"}
+                  </div>
+                  <div
+                    className={`p-3 rounded-lg max-w-[80%] shadow-sm ${
+                      msg.role === "assistant"
+                        ? "bg-accent text-accent-foreground border border-border/50"
+                        : "bg-primary text-primary-foreground"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                  </div>
                 </div>
               ))}
               {isLoading && (
