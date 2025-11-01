@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Home, Users, LogIn, LogOut, User, Map } from "lucide-react";
+import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -94,6 +94,15 @@ const Navbar = () => {
             >
               <Map className="w-4 h-4 mr-1" />
               Lộ trình
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/test")}
+              className={location.pathname === "/test" ? "text-primary" : ""}
+            >
+              <ClipboardCheck className="w-4 h-4 mr-1" />
+              Kiểm tra
             </Button>
           </div>
           
