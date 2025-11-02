@@ -2,12 +2,21 @@ import Navbar from "@/components/Navbar";
 import SkillCard from "@/components/SkillCard";
 import ChatBotWidget from "@/components/ChatBotWidget";
 import { Button } from "@/components/ui/button";
-import { Headphones, Mic, BookText, PenTool, MessageCircle, Sparkles, Zap, Brain } from "lucide-react";
+import { Headphones, Mic, BookText, PenTool, MessageCircle, Sparkles, Zap, Brain, ArrowRight, BookOpen } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-japanese.jpg";
 
 const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const aiFeatures = [
     {
@@ -101,12 +110,25 @@ const Index = () => {
               Nền tảng học tiếng Nhật hiện đại với chatbot AI thông minh. 
               Luyện tập cả 4 kỹ năng: Nghe, Nói, Đọc, Viết mọi lúc mọi nơi.
             </p>
-            <div className="flex gap-4 justify-center">
-              <Button variant="hero" size="lg" className="text-lg px-8">
+            <div className="flex gap-4 justify-center flex-wrap">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="text-lg px-8 group"
+                onClick={() => navigate('/roadmap')}
+              >
+                <BookOpen className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 Bắt Đầu Học Ngay
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-lg px-8 group border-2"
+                onClick={() => scrollToSection('ai-sensei')}
+              >
                 Xem Thêm
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
           </div>
@@ -134,7 +156,7 @@ const Index = () => {
       </section>
 
       {/* AI Sensei Section - Enhanced */}
-      <section className="py-20 relative overflow-hidden">
+      <section id="ai-sensei" className="py-20 relative overflow-hidden scroll-mt-20">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse" />
