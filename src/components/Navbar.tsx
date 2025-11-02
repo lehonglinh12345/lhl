@@ -11,6 +11,8 @@ import {
 import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -105,6 +107,9 @@ const Navbar = () => {
               Kiểm tra
             </Button>
           </div>
+          
+          <ThemeToggle />
+          <NotificationBell />
           
           {user ? (
             <DropdownMenu>

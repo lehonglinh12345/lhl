@@ -2,13 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import ChatBotWidget from '@/components/ChatBotWidget';
+import ImageLightbox from '@/components/ImageLightbox';
+import CommentItem from '@/components/CommentItem';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageSquare, PenSquare, Loader2, Image as ImageIcon, Send, X } from 'lucide-react';
+import { Heart, MessageSquare, PenSquare, Loader2, Image as ImageIcon, Send, X, Reply } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -39,10 +41,12 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
+  parent_comment_id: string | null;
   profiles: {
     display_name: string;
     avatar_url: string | null;
   };
+  replies?: Comment[];
 }
 
 const Community = () => {
@@ -66,6 +70,7 @@ const Community = () => {
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [newComment, setNewComment] = useState<Record<string, string>>({});
   const [loadingComments, setLoadingComments] = useState<Record<string, boolean>>({});
+  const [replyingTo, setReplyingTo] = useState<Record<string, string | null>>({});
 
   const categoryLabels: Record<string, string> = {
     listening: '🎧 Nghe',
@@ -245,7 +250,23 @@ const Community = () => {
 
       if (error) throw error;
 
-      setComments(prev => ({ ...prev, [postId]: data || [] }));
+      // Organize comments into parent-child structure
+      const commentMap: Record<string, Comment> = {};
+      const rootComments: Comment[] = [];
+
+      data?.forEach(comment => {
+        commentMap[comment.id] = { ...comment, replies: [] };
+      });
+
+      data?.forEach(comment => {
+        if (comment.parent_comment_id) {
+          commentMap[comment.parent_comment_id]?.replies?.push(commentMap[comment.id]);
+        } else {
+          rootComments.push(commentMap[comment.id]);
+        }
+      });
+
+      setComments(prev => ({ ...prev, [postId]: rootComments }));
     } catch (error: any) {
       toast.error('Không thể tải bình luận: ' + error.message);
     } finally {
@@ -266,13 +287,14 @@ const Community = () => {
     setOpenComments(newOpenComments);
   };
 
-  const handleAddComment = async (postId: string) => {
+  const handleAddComment = async (postId: string, parentCommentId: string | null = null) => {
     if (!user) {
       navigate('/auth');
       return;
     }
 
-    const content = newComment[postId]?.trim();
+    const commentKey = parentCommentId ? `${postId}-${parentCommentId}` : postId;
+    const content = newComment[commentKey]?.trim();
     if (!content) {
       toast.error('Vui lòng nhập nội dung bình luận');
       return;
@@ -285,14 +307,16 @@ const Community = () => {
           post_id: postId,
           user_id: user.id,
           content,
+          parent_comment_id: parentCommentId,
         });
 
       if (error) throw error;
 
-      setNewComment(prev => ({ ...prev, [postId]: '' }));
+      setNewComment(prev => ({ ...prev, [commentKey]: '' }));
+      setReplyingTo(prev => ({ ...prev, [postId]: null }));
       await fetchComments(postId);
       await fetchPosts(); // Refresh to update comment count
-      toast.success('Đã thêm bình luận!');
+      toast.success(parentCommentId ? 'Đã trả lời!' : 'Đã thêm bình luận!');
     } catch (error: any) {
       toast.error('Lỗi: ' + error.message);
     }
@@ -490,10 +514,10 @@ const Community = () => {
                     </CardHeader>
                     <CardContent>
                       {post.image_url && (
-                        <img
+                        <ImageLightbox
                           src={post.image_url}
                           alt={post.title}
-                          className="w-full h-auto rounded-lg mb-4"
+                          thumbnailClassName="mb-4"
                         />
                       )}
                       
@@ -529,34 +553,33 @@ const Community = () => {
                               <div className="text-center py-4">
                                 <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
                               </div>
-                            ) : (
-                              <>
-                                {comments[post.id]?.map((comment) => (
-                                  <div key={comment.id} className="flex gap-3">
-                                    <Avatar className="w-8 h-8">
-                                      <AvatarImage src={comment.profiles.avatar_url || undefined} />
-                                      <AvatarFallback>
-                                        {comment.profiles.display_name[0].toUpperCase()}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                      <div className="bg-muted rounded-lg p-3">
-                                        <p className="font-semibold text-sm">
-                                          {comment.profiles.display_name}
-                                        </p>
-                                        <p className="text-sm">{comment.content}</p>
-                                      </div>
-                                      <p className="text-xs text-muted-foreground mt-1 ml-3">
-                                        {formatDistanceToNow(new Date(comment.created_at), {
-                                          addSuffix: true,
-                                          locale: vi,
-                                        })}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
+                              ) : (
+                                <>
+                                  {comments[post.id]?.map((comment) => (
+                                    <CommentItem
+                                      key={comment.id}
+                                      comment={comment}
+                                      postId={post.id}
+                                      user={user}
+                                      replyingTo={replyingTo[post.id] || null}
+                                      newComment={newComment[`${post.id}-${comment.id}`] || ''}
+                                      onReply={(commentId) =>
+                                        setReplyingTo((prev) => ({ ...prev, [post.id]: commentId }))
+                                      }
+                                      onCancelReply={() =>
+                                        setReplyingTo((prev) => ({ ...prev, [post.id]: null }))
+                                      }
+                                      onCommentChange={(value) =>
+                                        setNewComment((prev) => ({
+                                          ...prev,
+                                          [`${post.id}-${comment.id}`]: value,
+                                        }))
+                                      }
+                                      onSubmitReply={() => handleAddComment(post.id, comment.id)}
+                                    />
+                                  ))}
 
-                                {user && (
+                                  {user && !replyingTo[post.id] && (
                                   <div className="flex gap-2 mt-4">
                                     <Input
                                       placeholder="Viết bình luận..."
