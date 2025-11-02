@@ -118,6 +118,12 @@ export default {
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.4s ease-out"
       },
+      animationDelay: {
+        '200': '200ms',
+        '400': '400ms',
+        '500': '500ms',
+        '1000': '1000ms',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
