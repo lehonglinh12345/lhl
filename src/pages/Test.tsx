@@ -65,6 +65,51 @@ const testQuestions: Question[] = [
     explanation: "'〜たことがある' là mẫu câu diễn tả kinh nghiệm 'đã từng'. Phải dùng thì quá khứ (た-form) trước 'ことがある'.",
     tip: "Mẫu câu kinh nghiệm: [động từ た-form] + ことがある/ない. Ví dụ: 食べたことがある (đã từng ăn)",
     level: "N4"
+  },
+  {
+    id: 6,
+    question: "日本語___勉強しています。",
+    options: ["が", "を", "に", "で"],
+    correct: 1,
+    explanation: "Trợ từ 'を' đánh dấu tân ngữ trực tiếp. '勉強する' (benkyou suru) là động từ 'học', và 'を' chỉ ra cái gì đang được học.",
+    tip: "Với động từ する (suru), tân ngữ thường dùng を. Ví dụ: 日本語を勉強する, サッカーをする.",
+    level: "N5"
+  },
+  {
+    id: 7,
+    question: "図書館___本を借ります。",
+    options: ["が", "を", "で", "に"],
+    correct: 2,
+    explanation: "Trợ từ 'で' chỉ địa điểm diễn ra hành động. '図書館で' = 'tại thư viện'.",
+    tip: "で chỉ nơi hành động xảy ra, に chỉ nơi đến hoặc nơi tồn tại. Công thức: [Địa điểm] + で + [Hành động]",
+    level: "N5"
+  },
+  {
+    id: 8,
+    question: "毎日7時___起きます。",
+    options: ["が", "を", "に", "で"],
+    correct: 2,
+    explanation: "Trợ từ 'に' đánh dấu thời gian cụ thể. '7時に' = 'lúc 7 giờ'.",
+    tip: "に dùng với thời gian cụ thể (7時、月曜日、2月). KHÔNG dùng với thời gian chung (今日、明日、毎日).",
+    level: "N5"
+  },
+  {
+    id: 9,
+    question: "田中さんは___優しいです。",
+    options: ["とても", "たくさん", "もっと", "すこし"],
+    correct: 0,
+    explanation: "'とても' (totemo) = 'rất, vô cùng' dùng để nhấn mạnh tính từ. 'たくさん' dùng với danh từ đếm được.",
+    tip: "とても + tính từ (とても優しい). たくさん + danh từ (たくさん本).",
+    level: "N5"
+  },
+  {
+    id: 10,
+    question: "この映画は___面白かったです。",
+    options: ["あまり", "全然", "とても", "ぜんぜん"],
+    correct: 2,
+    explanation: "Câu khẳng định cần phó từ khẳng định. 'とても' (rất) phù hợp. 'あまり' và 'ぜんぜん' dùng với câu phủ định.",
+    tip: "あまり/ぜんぜん + phủ định. とても + khẳng định. Ví dụ: あまり好きじゃない, とても好きです.",
+    level: "N5"
   }
 ];
 
@@ -102,9 +147,30 @@ const Test = () => {
 
   const getLevel = (score: number) => {
     const percentage = (score / testQuestions.length) * 100;
-    if (percentage >= 80) return { level: "N4-N3", color: "bg-green-500", message: "Xuất sắc! Bạn đã nắm vững kiến thức N5." };
-    if (percentage >= 60) return { level: "N5", color: "bg-blue-500", message: "Tốt! Bạn đang ở trình độ N5." };
-    return { level: "N5 cơ bản", color: "bg-yellow-500", message: "Hãy ôn luyện thêm kiến thức N5 cơ bản nhé!" };
+    if (percentage >= 90) return { 
+      level: "N4", 
+      color: "bg-gradient-to-r from-green-500 to-emerald-600", 
+      message: "Xuất sắc! Bạn đã sẵn sàng học N4.",
+      advice: "Bạn đã nắm vững kiến thức N5. Hãy tiếp tục với N4: học các mẫu câu phức tạp hơn, động từ て-form, và kanji N4."
+    };
+    if (percentage >= 70) return { 
+      level: "N5 vững", 
+      color: "bg-gradient-to-r from-blue-500 to-cyan-600", 
+      message: "Tốt lắm! Trình độ N5 khá vững.",
+      advice: "Bạn có nền tảng tốt. Hãy ôn luyện thêm các điểm còn yếu và bắt đầu làm quen với N4."
+    };
+    if (percentage >= 50) return { 
+      level: "N5 trung bình", 
+      color: "bg-gradient-to-r from-yellow-500 to-orange-500", 
+      message: "Khá tốt! Cần ôn thêm một số điểm.",
+      advice: "Hãy tập trung vào ngữ pháp cơ bản: trợ từ (は、が、を、に、で), động từ る、う、た-form, và luyện tập nhiều hơn."
+    };
+    return { 
+      level: "Cần cố gắng thêm", 
+      color: "bg-gradient-to-r from-red-500 to-pink-600", 
+      message: "Hãy dành thời gian ôn luyện thêm nhé!",
+      advice: "Bạn cần học lại từ đầu: bảng chữ cái (Hiragana, Katakana), ngữ pháp cơ bản, và từ vựng N5. Đừng nản chí, mọi người đều bắt đầu từ đây!"
+    };
   };
 
   if (!started) {
@@ -124,9 +190,13 @@ const Test = () => {
 
             <Card className="text-left">
               <CardHeader>
-                <CardTitle>Về bài test này</CardTitle>
-                <CardDescription>
-                  Bài test bao gồm {testQuestions.length} câu hỏi trắc nghiệm về ngữ pháp và từ vựng cơ bản.
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-primary" />
+                  Về bài test này
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Bài test gồm {testQuestions.length} câu hỏi trắc nghiệm về ngữ pháp và từ vựng N5-N4.
+                  Mỗi câu hỏi đều có giải thích chi tiết và gợi ý học tập.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -166,22 +236,55 @@ const Test = () => {
         <Navbar />
         <main className="container mx-auto px-4 py-8 pt-24">
           <div className="max-w-4xl mx-auto space-y-6">
-            <Card className="border-2 border-primary">
-              <CardHeader className="text-center">
-                <Badge className={`${levelInfo.color} text-white mx-auto mb-3`}>
+            <Card className="border-2 border-primary shadow-lg">
+              <CardHeader className="text-center space-y-4">
+                <Badge className={`${levelInfo.color} text-white mx-auto mb-3 text-lg px-4 py-2`}>
                   Trình độ: {levelInfo.level}
                 </Badge>
-                <CardTitle className="text-3xl">Kết quả của bạn</CardTitle>
-                <CardDescription className="text-lg">
+                <CardTitle className="text-4xl font-bold">Kết quả của bạn</CardTitle>
+                <CardDescription className="text-xl font-medium">
                   {levelInfo.message}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-5xl font-bold text-primary mb-2">
-                    {score}/{testQuestions.length}
+              <CardContent className="space-y-6">
+                <div className="text-center space-y-4">
+                  <div className="inline-block">
+                    <div className="text-6xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent mb-2">
+                      {score}/{testQuestions.length}
+                    </div>
+                    <p className="text-muted-foreground">
+                      Điểm số: {Math.round((score / testQuestions.length) * 100)}%
+                    </p>
                   </div>
-                  <Progress value={(score / testQuestions.length) * 100} className="h-3" />
+                  <Progress value={(score / testQuestions.length) * 100} className="h-4" />
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                  <div className="flex items-start gap-3">
+                    <Lightbulb className="w-6 h-6 text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-bold text-lg mb-2 text-blue-900 dark:text-blue-100">Lời khuyên cho bạn:</h3>
+                      <p className="text-blue-800 dark:text-blue-200 leading-relaxed">{levelInfo.advice}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                    <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-green-700 dark:text-green-300">{score}</div>
+                    <div className="text-sm text-green-600 dark:text-green-400">Đúng</div>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-950/30 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                    <XCircle className="w-8 h-8 text-red-600 dark:text-red-400 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-red-700 dark:text-red-300">{testQuestions.length - score}</div>
+                    <div className="text-sm text-red-600 dark:text-red-400">Sai</div>
+                  </div>
+                  <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{Math.round((score / testQuestions.length) * 100)}%</div>
+                    <div className="text-sm text-purple-600 dark:text-purple-400">Tỷ lệ</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

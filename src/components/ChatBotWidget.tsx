@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, X, Send, Loader2, Image as ImageIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useJapaneseChat } from "@/hooks/useJapaneseChat";
@@ -11,8 +11,52 @@ const ChatBotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [displayedText, setDisplayedText] = useState<string>("");
+  const [isTyping, setIsTyping] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, sendMessage } = useJapaneseChat();
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + "px";
+    }
+  }, [inputMessage]);
+
+  // Typing effect for last message
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.role === "assistant") {
+      const content = typeof lastMessage.content === "string" 
+        ? lastMessage.content 
+        : lastMessage.content.find(c => c.type === "text")?.text || "";
+      
+      if (content !== displayedText) {
+        setIsTyping(true);
+        setDisplayedText("");
+        let currentIndex = 0;
+        
+        const interval = setInterval(() => {
+          if (currentIndex < content.length) {
+            setDisplayedText(content.substring(0, currentIndex + 1));
+            currentIndex++;
+            // Auto scroll to bottom
+            if (scrollRef.current) {
+              scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }
+          } else {
+            setIsTyping(false);
+            clearInterval(interval);
+          }
+        }, 30); // Speed of typing effect
+
+        return () => clearInterval(interval);
+      }
+    }
+  }, [messages]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,6 +89,9 @@ const ChatBotWidget = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
   };
 
   return (
@@ -73,7 +120,7 @@ const ChatBotWidget = () => {
             </div>
           </div>
 
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
             <div className="space-y-4">
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground py-8 px-4">
@@ -115,12 +162,22 @@ const ChatBotWidget = () => {
                     }`}
                   >
                     {typeof msg.content === "string" ? (
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {msg.role === "assistant" && idx === messages.length - 1 ? displayedText : msg.content}
+                        {msg.role === "assistant" && idx === messages.length - 1 && isTyping && (
+                          <span className="inline-block w-1 h-4 ml-1 bg-current animate-pulse" />
+                        )}
+                      </p>
                     ) : (
                       <div className="space-y-2">
                         {msg.content.map((item, i) => (
                           item.type === "text" ? (
-                            <p key={i} className="text-sm whitespace-pre-wrap leading-relaxed">{item.text}</p>
+                            <p key={i} className="text-sm whitespace-pre-wrap leading-relaxed">
+                              {idx === messages.length - 1 ? displayedText : item.text}
+                              {idx === messages.length - 1 && isTyping && (
+                                <span className="inline-block w-1 h-4 ml-1 bg-current animate-pulse" />
+                              )}
+                            </p>
                           ) : (
                             <img key={i} src={item.image_url?.url} alt="Uploaded" className="max-w-full rounded-lg" />
                           )
@@ -172,17 +229,32 @@ const ChatBotWidget = () => {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
                 title="Gửi ảnh"
+                className="self-end"
               >
                 <ImageIcon className="w-4 h-4" />
               </Button>
-              <Input
+              <Textarea
+                ref={textareaRef}
                 placeholder="Nhập tin nhắn..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
                 disabled={isLoading}
+                className="min-h-[40px] max-h-[120px] resize-none"
+                rows={1}
               />
-              <Button size="icon" variant="hero" onClick={handleSend} disabled={isLoading || (!inputMessage.trim() && !selectedImage)}>
+              <Button 
+                size="icon" 
+                variant="hero" 
+                onClick={handleSend} 
+                disabled={isLoading || (!inputMessage.trim() && !selectedImage)}
+                className="self-end"
+              >
                 <Send className="w-4 h-4" />
               </Button>
             </div>
