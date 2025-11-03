@@ -1,21 +1,36 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-type Message = { role: "user" | "assistant"; content: string };
+type Message = { 
+  role: "user" | "assistant"; 
+  content: string | Array<{ type: "text" | "image_url"; text?: string; image_url?: { url: string } }>;
+};
 
 export const useJapaneseChat = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "こんにちは！👋\n\nXin chào! Tôi là AI Sensei, giáo viên tiếng Nhật thông minh của bạn.\n\n✨ Tôi có thể giúp bạn:\n• Giải thích ngữ pháp chi tiết (N5→N1)\n• Phân tích từ vựng và cách dùng\n• Sửa lỗi và cải thiện câu văn\n• Chia sẻ kiến thức văn hóa Nhật Bản\n• Gợi ý phương pháp học hiệu quả\n\nBạn muốn học điều gì hôm nay? 📚",
+      content: "こんにちは！👋\n\nXin chào! Tôi là AI Sensei, giáo viên tiếng Nhật thông minh của bạn.\n\n✨ Tôi có thể giúp bạn:\n• Giải thích ngữ pháp chi tiết (N5→N1)\n• Phân tích từ vựng và cách dùng\n• Sửa lỗi và cải thiện câu văn\n• Phân tích ảnh (chữ viết, văn bản, hình ảnh) 📷\n• Chia sẻ kiến thức văn hóa Nhật Bản\n• Gợi ý phương pháp học hiệu quả\n\nBạn muốn học điều gì hôm nay? 📚",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = async (input: string) => {
-    if (!input.trim()) return;
+  const sendMessage = async (input: string, imageData?: string | null) => {
+    if (!input.trim() && !imageData) return;
 
-    const userMsg: Message = { role: "user", content: input };
+    // Build message content
+    let messageContent: string | Array<{ type: "text" | "image_url"; text?: string; image_url?: { url: string } }>;
+    
+    if (imageData) {
+      messageContent = [
+        ...(input.trim() ? [{ type: "text" as const, text: input }] : []),
+        { type: "image_url" as const, image_url: { url: imageData } }
+      ];
+    } else {
+      messageContent = input;
+    }
+
+    const userMsg: Message = { role: "user", content: messageContent };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 

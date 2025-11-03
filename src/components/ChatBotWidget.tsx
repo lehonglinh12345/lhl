@@ -1,20 +1,50 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Image as ImageIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useJapaneseChat } from "@/hooks/useJapaneseChat";
+import { toast } from "sonner";
 
 const ChatBotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, isLoading, sendMessage } = useJapaneseChat();
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 5MB.");
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Vui lòng chọn file ảnh!");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSelectedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSend = async () => {
-    if (!inputMessage.trim() || isLoading) return;
-    await sendMessage(inputMessage);
+    if ((!inputMessage.trim() && !selectedImage) || isLoading) return;
+    await sendMessage(inputMessage, selectedImage);
     setInputMessage("");
+    setSelectedImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -84,7 +114,19 @@ const ChatBotWidget = () => {
                         : "bg-primary text-primary-foreground"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    {typeof msg.content === "string" ? (
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {msg.content.map((item, i) => (
+                          item.type === "text" ? (
+                            <p key={i} className="text-sm whitespace-pre-wrap leading-relaxed">{item.text}</p>
+                          ) : (
+                            <img key={i} src={item.image_url?.url} alt="Uploaded" className="max-w-full rounded-lg" />
+                          )
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -97,16 +139,50 @@ const ChatBotWidget = () => {
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t border-border">
+          <div className="p-4 border-t border-border space-y-2">
+            {selectedImage && (
+              <div className="relative inline-block">
+                <img 
+                  src={selectedImage} 
+                  alt="Preview" 
+                  className="max-h-20 rounded-lg border-2 border-primary"
+                />
+                <button
+                  onClick={() => {
+                    setSelectedImage(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs hover:scale-110 transition-transform"
+                >
+                  ×
+                </button>
+              </div>
+            )}
             <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading}
+                title="Gửi ảnh"
+              >
+                <ImageIcon className="w-4 h-4" />
+              </Button>
               <Input
                 placeholder="Nhập tin nhắn..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                 disabled={isLoading}
               />
-              <Button size="icon" variant="hero" onClick={handleSend} disabled={isLoading}>
+              <Button size="icon" variant="hero" onClick={handleSend} disabled={isLoading || (!inputMessage.trim() && !selectedImage)}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>

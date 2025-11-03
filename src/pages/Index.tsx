@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import SkillCard from "@/components/SkillCard";
 import ChatBotWidget from "@/components/ChatBotWidget";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Headphones, Mic, BookText, PenTool, MessageCircle, Sparkles, Zap, Brain, ArrowRight, BookOpen } from "lucide-react";
 import { useState } from "react";
@@ -260,6 +261,7 @@ const Index = () => {
       </section>
 
       <ChatBotWidget />
+      <Footer />
     </div>
   );
 };

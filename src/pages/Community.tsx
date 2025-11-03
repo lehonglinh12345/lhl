@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import ChatBotWidget from '@/components/ChatBotWidget';
+import Footer from '@/components/Footer';
 import ImageLightbox from '@/components/ImageLightbox';
 import CommentItem from '@/components/CommentItem';
 import { Button } from '@/components/ui/button';
@@ -620,6 +621,7 @@ const Community = () => {
       </main>
 
       <ChatBotWidget />
+      <Footer />
     </div>
   );
 };

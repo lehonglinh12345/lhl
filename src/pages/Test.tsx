@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import ChatBotWidget from "@/components/ChatBotWidget";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -151,6 +152,7 @@ const Test = () => {
           </div>
         </main>
         <ChatBotWidget />
+        <Footer />
       </div>
     );
   }
@@ -267,6 +269,7 @@ const Test = () => {
           </div>
         </main>
         <ChatBotWidget />
+        <Footer />
       </div>
     );
   }
@@ -326,6 +329,7 @@ const Test = () => {
         </div>
       </main>
       <ChatBotWidget />
+      <Footer />
     </div>
   );
 };

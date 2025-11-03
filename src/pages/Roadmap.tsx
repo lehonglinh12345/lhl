@@ -6,6 +6,7 @@ import { BookOpen, Clock, GraduationCap, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import ChatBotWidget from "@/components/ChatBotWidget";
+import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface Lesson {
@@ -229,6 +230,7 @@ const Roadmap = () => {
       </main>
 
       <ChatBotWidget />
+      <Footer />
     </div>
   );
 };
