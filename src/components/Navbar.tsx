@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck } from "lucide-react";
+import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -105,6 +105,15 @@ const Navbar = () => {
             >
               <ClipboardCheck className="w-4 h-4 mr-1" />
               Kiểm tra
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/dictionary")}
+              className={location.pathname === "/dictionary" ? "text-primary" : ""}
+            >
+              <BookMarked className="w-4 h-4 mr-1" />
+              Từ điển
             </Button>
           </div>
           

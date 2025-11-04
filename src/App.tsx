@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import Community from "./pages/Community";
 import Roadmap from "./pages/Roadmap";
 import Test from "./pages/Test";
+import Dictionary from "./pages/Dictionary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/community" element={<Community />} />
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/test" element={<Test />} />
+            <Route path="/dictionary" element={<Dictionary />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
