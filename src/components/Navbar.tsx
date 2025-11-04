@@ -50,38 +50,6 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/listening")}
-              className={location.pathname === "/listening" ? "text-primary" : ""}
-            >
-              Nghe
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/speaking")}
-              className={location.pathname === "/speaking" ? "text-primary" : ""}
-            >
-              Nói
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/reading")}
-              className={location.pathname === "/reading" ? "text-primary" : ""}
-            >
-              Đọc
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/writing")}
-              className={location.pathname === "/writing" ? "text-primary" : ""}
-            >
-              Viết
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
               onClick={() => navigate("/community")}
               className={location.pathname === "/community" ? "text-primary" : ""}
             >
