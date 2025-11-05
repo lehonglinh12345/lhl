@@ -58,15 +58,20 @@ const Dictionary = () => {
         body: {
           messages: [{
             role: "user",
-            content: `Tra từ điển tiếng Nhật cho từ: "${word}". 
+            content: `Tra từ điển tiếng Nhật. Từ tìm kiếm: "${word}". 
+            
+            Nếu từ tìm kiếm là tiếng Việt, hãy tìm từ tiếng Nhật tương ứng.
+            Nếu từ tìm kiếm là tiếng Nhật (Kanji, Hiragana, Katakana), hãy giải nghĩa từ đó.
+            
             Trả lời theo format JSON này:
             {
-              "word": "từ gốc",
+              "word": "từ tiếng Nhật (Kanji/Kana)",
               "reading": "cách đọc (hiragana/katakana)",
-              "meanings": ["nghĩa 1", "nghĩa 2", ...],
-              "examples": ["ví dụ câu 1", "ví dụ câu 2", ...]
+              "meanings": ["nghĩa tiếng Việt 1", "nghĩa 2", ...],
+              "examples": ["ví dụ câu tiếng Nhật với nghĩa tiếng Việt 1", "ví dụ 2", ...]
             }
-            Chỉ trả về JSON, không giải thích thêm.`
+            
+            Chỉ trả về JSON thuần, không giải thích thêm.`
           }]
         }
       });
