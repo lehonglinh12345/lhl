@@ -302,6 +302,92 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_vocabulary: {
+        Row: {
+          created_at: string
+          example: string | null
+          id: string
+          image_url: string | null
+          last_reviewed_at: string | null
+          mastery_level: number
+          meaning: string
+          reading: string
+          review_count: number
+          user_id: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          example?: string | null
+          id?: string
+          image_url?: string | null
+          last_reviewed_at?: string | null
+          mastery_level?: number
+          meaning: string
+          reading: string
+          review_count?: number
+          user_id: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          example?: string | null
+          id?: string
+          image_url?: string | null
+          last_reviewed_at?: string | null
+          mastery_level?: number
+          meaning?: string
+          reading?: string
+          review_count?: number
+          user_id?: string
+          word?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          completed_at: string | null
+          completion_percentage: number
+          created_at: string
+          id: string
+          last_studied_at: string | null
+          lesson_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          last_studied_at?: string | null
+          lesson_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          last_studied_at?: string | null
+          lesson_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

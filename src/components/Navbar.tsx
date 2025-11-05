@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked } from "lucide-react";
+import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked, Brain, TrendingUp } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -82,6 +82,24 @@ const Navbar = () => {
             >
               <BookMarked className="w-4 h-4 mr-1" />
               Từ điển
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/flashcard")}
+              className={location.pathname === "/flashcard" ? "text-primary" : ""}
+            >
+              <Brain className="w-4 h-4 mr-1" />
+              Flashcard
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/progress")}
+              className={location.pathname === "/progress" ? "text-primary" : ""}
+            >
+              <TrendingUp className="w-4 h-4 mr-1" />
+              Tiến độ
             </Button>
           </div>
           

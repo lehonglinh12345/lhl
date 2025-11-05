@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Volume2, BookOpen, Sparkles } from "lucide-react";
+import { Search, Volume2, BookOpen, Sparkles, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -23,12 +24,14 @@ const popularWords = [
 ];
 
 const Dictionary = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [wordResult, setWordResult] = useState<WordResult | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -174,6 +177,45 @@ const Dictionary = () => {
     speechSynthesis.speak(utterance);
   };
 
+  const saveToFlashcard = async () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để lưu từ vựng");
+      return;
+    }
+
+    if (!wordResult) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from("saved_vocabulary")
+        .insert({
+          user_id: user.id,
+          word: wordResult.word,
+          reading: wordResult.reading,
+          meaning: wordResult.meanings.join(", "),
+          example: wordResult.examples[0] || null,
+          image_url: wordResult.imageUrl || null,
+          mastery_level: 0
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.error("Từ này đã có trong flashcard!");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Đã lưu vào Flashcard!");
+      }
+    } catch (error: any) {
+      console.error("Error saving:", error);
+      toast.error("Không thể lưu từ vựng");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Navbar />
@@ -274,6 +316,16 @@ const Dictionary = () => {
                           className="hover:bg-primary/10"
                         >
                           <Volume2 className="w-5 h-5 text-primary" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={saveToFlashcard}
+                          disabled={isSaving || !user}
+                          className="hover:bg-primary/10"
+                          title={!user ? "Đăng nhập để lưu" : "Lưu vào Flashcard"}
+                        >
+                          <Save className="w-5 h-5" />
                         </Button>
                       </div>
                       <p className="text-xl text-muted-foreground">{wordResult.reading}</p>
