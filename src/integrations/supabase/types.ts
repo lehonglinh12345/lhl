@@ -106,6 +106,42 @@ export type Database = {
         }
         Relationships: []
       }
+      news: {
+        Row: {
+          author: string
+          category: string
+          content: string
+          created_at: string
+          excerpt: string
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string
+          category: string
+          content: string
+          created_at?: string
+          excerpt: string
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           comment_id: string | null
@@ -301,6 +337,35 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      saved_news: {
+        Row: {
+          created_at: string
+          id: string
+          news_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          news_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          news_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_news_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_vocabulary: {
         Row: {

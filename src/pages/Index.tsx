@@ -361,7 +361,7 @@ const Index = () => {
             </div>
 
             <div className="text-center mt-8">
-              <Button variant="outline" size="lg" className="group">
+              <Button variant="outline" size="lg" className="group" onClick={() => navigate('/news')}>
                 Xem Thêm Tin Tức
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>

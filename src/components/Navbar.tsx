@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked, Brain, TrendingUp } from "lucide-react";
+import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked, Brain, TrendingUp, Newspaper } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -86,6 +86,15 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => navigate("/news")}
+              className={location.pathname.startsWith("/news") ? "text-primary" : ""}
+            >
+              <Newspaper className="w-4 h-4 mr-1" />
+              Tin tức
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate("/flashcard")}
               className={location.pathname === "/flashcard" ? "text-primary" : ""}
             >
@@ -122,7 +131,7 @@ const Navbar = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/community")}>
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <User className="w-4 h-4 mr-2" />
                   Profile
                 </DropdownMenuItem>

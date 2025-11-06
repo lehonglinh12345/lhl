@@ -16,6 +16,9 @@ import Test from "./pages/Test";
 import Dictionary from "./pages/Dictionary";
 import Flashcard from "./pages/Flashcard";
 import Progress from "./pages/Progress";
+import News from "./pages/News";
+import NewsDetail from "./pages/NewsDetail";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +43,9 @@ const App = () => (
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/flashcard" element={<Flashcard />} />
             <Route path="/progress" element={<Progress />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
