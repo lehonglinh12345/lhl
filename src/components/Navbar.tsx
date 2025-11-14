@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked, Brain, TrendingUp, Newspaper } from "lucide-react";
+import { BookOpen, Home, Users, LogIn, LogOut, User, Map, ClipboardCheck, BookMarked, Brain, TrendingUp, Newspaper, Menu } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -33,13 +33,82 @@ const Navbar = () => {
           </span>
         </div>
 
+        {/* Mobile Menu */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="bottom" align="start" className="w-48">
+              <DropdownMenuItem 
+                onClick={() => navigate("/")} 
+                className={location.pathname === "/" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Trang Chủ
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/community")} 
+                className={location.pathname === "/community" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Cộng đồng
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/roadmap")} 
+                className={location.pathname === "/roadmap" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <Map className="w-4 h-4 mr-2" />
+                Lộ trình
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/test")} 
+                className={location.pathname === "/test" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <ClipboardCheck className="w-4 h-4 mr-2" />
+                Kiểm tra
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/dictionary")} 
+                className={location.pathname === "/dictionary" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <BookMarked className="w-4 h-4 mr-2" />
+                Từ điển
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/news")} 
+                className={location.pathname.startsWith("/news") ? "bg-accent text-accent-foreground" : ""}
+              >
+                <Newspaper className="w-4 h-4 mr-2" />
+                Tin tức
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/flashcard")} 
+                className={location.pathname === "/flashcard" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <Brain className="w-4 h-4 mr-2" />
+                Flashcard
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => navigate("/progress")} 
+                className={location.pathname === "/progress" ? "bg-accent text-accent-foreground" : ""}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Tiến độ
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         <div className="flex items-center gap-4">
           {!isHome && (
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => navigate("/")}
-              className="gap-2"
+              className="hidden md:block gap-2"
             >
               <Home className="w-4 h-4" />
               <span className="hidden md:inline">Trang Chủ</span>
